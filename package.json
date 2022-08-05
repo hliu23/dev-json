@@ -2,9 +2,10 @@
   "name": "dev-json",
   "version": "0.0.1",
   "description": "Easy way to access, modify, and delete data in JSON files during development. Zero dependencies",
-  "main": "src/devjson.js",
+  "main": "src/dev-json.js",
   "scripts": {
-    "test": "mocha"
+    "test": "mocha",
+    "coverage": "nyc npm run test"
   },
   "repository": {
     "type": "git",
@@ -21,6 +22,9 @@
   },
   "homepage": "https://github.com/hliu23/dev-json#readme",
   "devDependencies": {
-    "mocha": "^10.0.0"
-  }
+    "mocha": "^10.0.0",
+    "mock-fs": "^5.1.3",
+    "nyc": "^15.1.0"
+  },
+  "dependencies": {}
 }

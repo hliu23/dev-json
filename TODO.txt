@@ -1,0 +1,15 @@
+Add option to throw error instead of overwriting existing data
+Log errors to log file
+Add option to access data by providing object
+Test for common errors
+Limit merge levels
+Separate tests into multiple files
+Separate multiple test cases
+Reduce repeated code
+Test for limit in size
+Improve test coverage
+Add option to delete empty properties
+Fix deep merge with empty object?
+  Use delete instead for now
+Rewrite deleteJSON to make more robust
+  Make deleteJSON return removed
