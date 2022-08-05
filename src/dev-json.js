@@ -54,7 +54,7 @@ function retrieveJSON(path, keys) {
 function insertJSON(path, obj) {
 
   function deepMerge(obj1, obj2) {
-    for (prop in obj2) {
+    for (let prop in obj2) {
       if (isObject(obj2[prop])) {
         // if prop not exists in obj1 or holds primitive val, create or overwrite value in obj1
         // else if prop exists and holds object, go one level deeper and repeat
@@ -67,6 +67,7 @@ function insertJSON(path, obj) {
     }
     return obj1;
   }
+  
   const testPromise = new Promise((resolve, reject) => {
     if (!path || !obj) reject(new Error("Not enough args"));
     else if (!fs.existsSync(path)) reject(new Error("Path does not exist"));
@@ -88,24 +89,51 @@ function insertJSON(path, obj) {
     .catch(catchError)
 }
 
-
-function deleteJSON(path, name) {
-  try {
-    if (!fs.existsSync(path)) throw Error("Path does not exist");
-  } catch (err) {
-    catchError(err);
-  }
-  return fsPromises.readFile(path)
+function deleteJSON(path, keys) {
+  const testPromise = new Promise((resolve, reject) => {
+    if (!path || !keys) reject(new Error("Not enough args"));
+    else if (!fs.existsSync(path)) reject(new Error("Path does not exist"));
+    else if (!Array.isArray(keys)) reject(new Error("Second arg not an array"));
+    else resolve(undefined);
+  })
+  let removed;
+  return testPromise
+    .then(() => fsPromises.readFile(path))
     .then((content) => {
       if (content != "") content = JSON.parse(content);
       else content = {};
+      
+      let arr = [];
 
-      if (content[name] != undefined) delete content[name];
-      return fsPromises.writeFile(path, JSON.stringify(content));
+      let obj = content;
+      for (let key = 0; key < keys.length; key++) {
+        arr.push(obj);
+        obj = obj[keys[key]];
+        if (obj == undefined) return null;
+      }
+
+      let lastKey = keys[keys.length-1];
+      const {[lastKey]: last, ...others} = arr[arr.length-1];
+
+      arr[arr.length-1] = others;
+
+      for (let i = arr.length-2; i >= 0; i--) {
+        arr[i][keys[i]] = arr[i+1];
+      }
+      
+      removed = last;
+      return arr[0];
     })
+    .then((res) => {
+      if (res == null) return null;
+      else return fsPromises.writeFile(path, JSON.stringify(res));
+    }) 
+    .then((res) => {
+      if (res !== null) return removed;
+      else return undefined;
+    }) 
     .catch(catchError)
 }
-
 
 module.exports = {
   retrieveJSON: retrieveJSON,
