@@ -231,12 +231,12 @@ describe("dev-json", function () {
       devJSON.deleteJSON(testFile, ["test2"])
         .then((res) => {
           assert.strictEqual(res["success"], false);
-          assert.strictEqual(res["removed"], undefined);
+          assert.strictEqual(res["deleted"], undefined);
         })
         .then(() => (devJSON.deleteJSON(testFile, ["test1", "test7", "test8"])))
         .then((res) => {
           assert.strictEqual(res["success"], false);
-          assert.strictEqual(res["removed"], undefined);
+          assert.strictEqual(res["deleted"], undefined);
         })
         // file unchanged as a whole
         .then(() => (devJSON.retrieveJSON(testFile, [])))
@@ -250,7 +250,7 @@ describe("dev-json", function () {
       devJSON.deleteJSON(testFile, ["test1", "test4"])
         .then((res) => {
           assert.strictEqual(res["success"], true);
-          assert.deepEqual(res["removed"], {"test5": "test6"});
+          assert.deepEqual(res["deleted"], {"test5": "test6"});
         })
         .then(() => (devJSON.retrieveJSON(testFile, ["test1", "test4"])))
         .then((res) => {
@@ -267,7 +267,7 @@ describe("dev-json", function () {
         .then(() => devJSON.deleteJSON(testFile, ["test10"]))
         .then((res) => {
           assert.strictEqual(res["success"], true);
-          assert.strictEqual(res["removed"], "test11");
+          assert.strictEqual(res["deleted"], "test11");
         })
         .then(() => (devJSON.retrieveJSON(testFile, ["test10"])))
         .then((res) => {

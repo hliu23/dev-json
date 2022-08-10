@@ -131,7 +131,7 @@ function deleteJSON(path, keys) {
           arr[i][keys[i]] = arr[i+1];
         }
   
-        resObj["removed"] = last; 
+        resObj["deleted"] = last; 
         return arr[0];
       }
 
