@@ -12,7 +12,7 @@ function catchError(err) {
     console.error(error.message);
   }
   if (env == "development") {
-    const expected = ["Not enough args", "Path does not exist", "Second arg not an array", "Second arg not an object"];
+    const expected = ["Not enough args", "Path does not exist", "Second arg not an array", "Second arg not an object", "Second arg is an empty array"];
     for (errMessage of expected) {
       if (err.message === errMessage) throw new Error(err.message);
     }
@@ -90,16 +90,21 @@ function insertJSON(path, obj) {
 }
 
 function deleteJSON(path, keys) {
+  let resObj = {
+    success: true
+  }
   const testPromise = new Promise((resolve, reject) => {
     if (!path || !keys) reject(new Error("Not enough args"));
     else if (!fs.existsSync(path)) reject(new Error("Path does not exist"));
     else if (!Array.isArray(keys)) reject(new Error("Second arg not an array"));
+    else if (keys.length == 0) reject(new Error("Second arg is an empty array"));
     else resolve(undefined);
   })
-  let removed;
+  // let removed;
   return testPromise
     .then(() => fsPromises.readFile(path))
     .then((content) => {
+      
       if (content != "") content = JSON.parse(content);
       else content = {};
       
@@ -109,29 +114,32 @@ function deleteJSON(path, keys) {
       for (let key = 0; key < keys.length; key++) {
         arr.push(obj);
         obj = obj[keys[key]];
-        if (obj == undefined) return null;
+        if (obj == undefined) {
+          resObj["success"] = false;
+          // unlikely for the whole new file to be undefined
+          return;
+        }
       }
 
-      let lastKey = keys[keys.length-1];
-      const {[lastKey]: last, ...others} = arr[arr.length-1];
-
-      arr[arr.length-1] = others;
-
-      for (let i = arr.length-2; i >= 0; i--) {
-        arr[i][keys[i]] = arr[i+1];
+      if (resObj["success"]) {
+        let lastKey = keys[keys.length-1];
+        const {[lastKey]: last, ...others} = arr[arr.length-1];
+  
+        arr[arr.length-1] = others;
+  
+        for (let i = arr.length-2; i >= 0; i--) {
+          arr[i][keys[i]] = arr[i+1];
+        }
+  
+        resObj["removed"] = last; 
+        return arr[0];
       }
-      
-      removed = last;
-      return arr[0];
+
     })
     .then((res) => {
-      if (res == null) return null;
-      else return fsPromises.writeFile(path, JSON.stringify(res));
+      if (resObj["success"]) return fsPromises.writeFile(path, JSON.stringify(res));
     }) 
-    .then((res) => {
-      if (res !== null) return removed;
-      else return undefined;
-    }) 
+    .then((res) => resObj) 
     .catch(catchError)
 }
 

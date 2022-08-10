@@ -11,5 +11,8 @@ Improve test coverage
 Add option to delete empty properties
 Fix deep merge with empty object?
   Use delete instead for now
+Fix deleteJSON with empty array?
 Rewrite deleteJSON to make more robust
   Make deleteJSON return removed
+Rewrite error messages
+Separate test cases with functions? - or make do with one case
